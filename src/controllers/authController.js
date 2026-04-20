@@ -109,6 +109,48 @@ const signUp = async (req, res, next) => {
     }
 };
 
+const login = async (req, res, next) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
+        }
+
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: 'Please enter a valid email address' });
+        }
+
+        const normalizedEmail = email.toLowerCase().trim();
+        const user = await User.findOne({ email: normalizedEmail });
+
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
+
+        const token = jwt.sign(
+            { userId: user._id, email: user.email },
+            process.env.JWT_SECRET || 'varalagbe-dev-secret',
+            { expiresIn: '7d' }
+        );
+
+        return res.status(200).json({
+            message: 'Login successful',
+            token,
+            user: formatUserResponse(user),
+        });
+    } catch (error) {
+        return next(error);
+    }
+};
+
 module.exports = {
+    login,
     signUp,
 };
