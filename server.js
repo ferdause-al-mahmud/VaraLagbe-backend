@@ -1,8 +1,10 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const connectDB = require('./src/config/database');
+const authRoutes = require('./src/routes/authRoutes');
+const userRoutes = require('./src/routes/userRoutes');
 
 const app = express();
 
@@ -18,20 +20,16 @@ app.use(cors({
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
-// Database Connection
-const connectDB = async () => {
-    try {
-        await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/varalagbe');
+/*
         console.log('✓ MongoDB connected successfully');
-    } catch (error) {
         console.error('✗ MongoDB connection failed:', error.message);
-        process.exit(1);
-    }
-};
 
+*/
 connectDB();
 
 // Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 
 // Health Check
