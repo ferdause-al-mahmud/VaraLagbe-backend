@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const connectDB = require('./src/config/database');
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
+const propertyRoutes = require('./src/routes/propertyRoutes');
 
 const app = express();
 
@@ -28,8 +29,10 @@ app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 connectDB();
 
 // Routes
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/properties', propertyRoutes);
 
 
 // Health Check
