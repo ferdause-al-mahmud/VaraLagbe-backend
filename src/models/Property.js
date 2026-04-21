@@ -65,6 +65,11 @@ const propertySchema = new mongoose.Schema(
             balconies: Number,
         },
         description: String,
+        property_type: {
+            type: String,
+            enum: ['Entire Flat', 'Private Room', 'Shared Seat', 'Sublet'],
+            required: true,
+        },
         amenities: [String],
         host: {
             name: String,
