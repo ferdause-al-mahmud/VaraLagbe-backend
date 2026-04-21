@@ -24,6 +24,32 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        address: {
+            streetAddress: {
+                type: String,
+                default: '',
+                trim: true,
+            },
+            thanaUpazila: {
+                type: String,
+                default: '',
+                trim: true,
+            },
+            cityDistrict: {
+                type: String,
+                default: '',
+                trim: true,
+            },
+            optional: {
+                type: String,
+                default: '',
+                trim: true,
+            },
+        },
+        favorites: {
+            type: [String],
+            default: [],
+        },
         nidFile: {
             type: mongoose.Schema.Types.Mixed,
             default: null,

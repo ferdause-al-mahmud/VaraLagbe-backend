@@ -10,6 +10,13 @@ const formatUserResponse = (user) => ({
     fullName: user.fullName,
     email: user.email,
     phone: user.phone,
+    address: {
+        streetAddress: user.address?.streetAddress || '',
+        thanaUpazila: user.address?.thanaUpazila || '',
+        cityDistrict: user.address?.cityDistrict || '',
+        optional: user.address?.optional || '',
+    },
+    favorites: user.favorites,
     nidFile: user.nidFile,
     agreedToTerms: user.agreedToTerms,
     createdAt: user.createdAt,
@@ -80,6 +87,13 @@ const signUp = async (req, res, next) => {
             email: normalizedEmail,
             phone: normalizedPhone,
             password: hashedPassword,
+            address: {
+                streetAddress: '',
+                thanaUpazila: '',
+                cityDistrict: '',
+                optional: '',
+            },
+            favorites: [],
             nidFile: nidFile || null,
             agreedToTerms: true,
         });
