@@ -25,9 +25,26 @@ const userSchema = new mongoose.Schema(
             required: true,
         },
         address: {
-            type: String,
-            default: '',
-            trim: true,
+            streetAddress: {
+                type: String,
+                default: '',
+                trim: true,
+            },
+            thanaUpazila: {
+                type: String,
+                default: '',
+                trim: true,
+            },
+            cityDistrict: {
+                type: String,
+                default: '',
+                trim: true,
+            },
+            optional: {
+                type: String,
+                default: '',
+                trim: true,
+            },
         },
         favorites: {
             type: [String],

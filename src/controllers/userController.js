@@ -9,7 +9,12 @@ const formatUserResponse = (user) => ({
     fullName: user.fullName,
     email: user.email,
     phone: user.phone,
-    address: user.address,
+    address: {
+        streetAddress: user.address?.streetAddress || '',
+        thanaUpazila: user.address?.thanaUpazila || '',
+        cityDistrict: user.address?.cityDistrict || '',
+        optional: user.address?.optional || '',
+    },
     favorites: user.favorites,
     nidFile: user.nidFile,
     agreedToTerms: user.agreedToTerms,
@@ -26,7 +31,7 @@ const getCurrentUser = async (req, res) => {
 
 const updateCurrentUser = async (req, res, next) => {
     try {
-        const { fullName, email, phone, address, favorites, nidFile } = req.body;
+        const { fullName, email, phone, address, nidFile } = req.body;
         const updates = {};
 
         if (fullName !== undefined) {
@@ -79,15 +84,16 @@ const updateCurrentUser = async (req, res, next) => {
         }
 
         if (address !== undefined) {
-            updates.address = address ? address.trim() : '';
-        }
-
-        if (favorites !== undefined) {
-            if (!Array.isArray(favorites)) {
-                return res.status(400).json({ message: 'Favorites must be an array' });
+            if (!address || typeof address !== 'object' || Array.isArray(address)) {
+                return res.status(400).json({ message: 'Address must be a valid object' });
             }
 
-            updates.favorites = favorites;
+            updates.address = {
+                streetAddress: typeof address.streetAddress === 'string' ? address.streetAddress.trim() : '',
+                thanaUpazila: typeof address.thanaUpazila === 'string' ? address.thanaUpazila.trim() : '',
+                cityDistrict: typeof address.cityDistrict === 'string' ? address.cityDistrict.trim() : '',
+                optional: typeof address.optional === 'string' ? address.optional.trim() : '',
+            };
         }
 
         if (nidFile !== undefined) {
