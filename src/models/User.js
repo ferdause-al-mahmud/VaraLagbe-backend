@@ -24,6 +24,15 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        address: {
+            type: String,
+            default: '',
+            trim: true,
+        },
+        favorites: {
+            type: [String],
+            default: [],
+        },
         nidFile: {
             type: mongoose.Schema.Types.Mixed,
             default: null,

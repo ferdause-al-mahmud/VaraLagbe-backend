@@ -9,6 +9,8 @@ const formatUserResponse = (user) => ({
     fullName: user.fullName,
     email: user.email,
     phone: user.phone,
+    address: user.address,
+    favorites: user.favorites,
     nidFile: user.nidFile,
     agreedToTerms: user.agreedToTerms,
     createdAt: user.createdAt,
@@ -24,7 +26,7 @@ const getCurrentUser = async (req, res) => {
 
 const updateCurrentUser = async (req, res, next) => {
     try {
-        const { fullName, email, phone, nidFile } = req.body;
+        const { fullName, email, phone, address, favorites, nidFile } = req.body;
         const updates = {};
 
         if (fullName !== undefined) {
@@ -74,6 +76,18 @@ const updateCurrentUser = async (req, res, next) => {
             }
 
             updates.phone = normalizedPhone;
+        }
+
+        if (address !== undefined) {
+            updates.address = address ? address.trim() : '';
+        }
+
+        if (favorites !== undefined) {
+            if (!Array.isArray(favorites)) {
+                return res.status(400).json({ message: 'Favorites must be an array' });
+            }
+
+            updates.favorites = favorites;
         }
 
         if (nidFile !== undefined) {

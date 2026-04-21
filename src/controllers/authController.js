@@ -10,6 +10,8 @@ const formatUserResponse = (user) => ({
     fullName: user.fullName,
     email: user.email,
     phone: user.phone,
+    address: user.address,
+    favorites: user.favorites,
     nidFile: user.nidFile,
     agreedToTerms: user.agreedToTerms,
     createdAt: user.createdAt,
@@ -80,6 +82,8 @@ const signUp = async (req, res, next) => {
             email: normalizedEmail,
             phone: normalizedPhone,
             password: hashedPassword,
+            address: '',
+            favorites: [],
             nidFile: nidFile || null,
             agreedToTerms: true,
         });
