@@ -1,14 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
+const {
+    deleteCurrentUser,
+    getCurrentUser,
+    updateCurrentUser,
+    updateCurrentUserPassword,
+} = require('../controllers/userController');
+const { protect } = require('../middleware/authMiddleware');
 
-router.get('/', async (req, res, next) => {
-    try {
-        const users = await User.find({}, '-password').sort({ createdAt: -1 });
-        res.status(200).json({ users });
-    } catch (error) {
-        next(error);
-    }
-});
+router.use(protect);
+
+router.get('/me', getCurrentUser);
+router.patch('/me', updateCurrentUser);
+router.patch('/me/password', updateCurrentUserPassword);
+router.delete('/me', deleteCurrentUser);
 
 module.exports = router;
