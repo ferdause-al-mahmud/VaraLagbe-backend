@@ -10,6 +10,7 @@ const formatUserResponse = (user) => ({
     fullName: user.fullName,
     email: user.email,
     phone: user.phone,
+    role: user.role,
     address: {
         streetAddress: user.address?.streetAddress || '',
         thanaUpazila: user.address?.thanaUpazila || '',
