@@ -6,6 +6,7 @@ const connectDB = require('./src/config/database');
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 const propertyRoutes = require('./src/routes/propertyRoutes');
+const bookingRoutes = require('./src/routes/bookingRoutes');
 
 const app = express();
 
@@ -14,7 +15,8 @@ app.use(cors({
     origin: [
         'http://localhost:3000',
         'http://localhost:19000',
-        'http://localhost:8081'
+        'http://localhost:8081',
+        'http://localhost:5000'
     ] || '*',
     credentials: true
 }));
@@ -33,6 +35,7 @@ connectDB();
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/properties', propertyRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 
 // Health Check
