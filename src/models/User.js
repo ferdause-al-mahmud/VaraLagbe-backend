@@ -24,6 +24,12 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        role: {
+            type: String,
+            enum: ['admin', 'owner', 'user'],
+            default: 'user',
+            required: true,
+        },
         address: {
             streetAddress: {
                 type: String,
@@ -45,7 +51,7 @@ const userSchema = new mongoose.Schema(
                 default: '',
                 trim: true,
             },
-        },
+                 },
         favorites: {
             type: [String],
             default: [],
