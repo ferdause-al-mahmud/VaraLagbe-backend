@@ -4,6 +4,7 @@ const User = require('../models/User');
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phoneRegex = /^01[0-9]{9}$/;
+const publicSignupRoles = ['user', 'owner'];
 
 const formatUserResponse = (user) => ({
     id: user._id,
@@ -31,6 +32,7 @@ const signUp = async (req, res, next) => {
             phone,
             password,
             confirmPassword,
+            role = 'user',
             agreed,
             nidFile,
         } = req.body;
@@ -65,6 +67,10 @@ const signUp = async (req, res, next) => {
                 .json({ message: 'Please agree to the Terms and Conditions' });
         }
 
+        if (!publicSignupRoles.includes(role)) {
+            return res.status(400).json({ message: 'Please choose a valid account type' });
+        }
+
         const normalizedEmail = email.toLowerCase().trim();
         const normalizedPhone = phone.trim();
 
@@ -87,6 +93,7 @@ const signUp = async (req, res, next) => {
             fullName: fullName.trim(),
             email: normalizedEmail,
             phone: normalizedPhone,
+            role,
             password: hashedPassword,
             address: {
                 streetAddress: '',
