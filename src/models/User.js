@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema(
                 default: '',
                 trim: true,
             },
-        },
+                 },
         favorites: {
             type: [String],
             default: [],
