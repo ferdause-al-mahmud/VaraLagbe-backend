@@ -1,4 +1,95 @@
 const Property = require('../models/Property');
+const crypto = require('crypto');
+
+const createProperty = async (req, res, next) => {
+    try {
+        const {
+            owner_id,
+            property_type,
+            title,
+            description,
+            location,
+            price,
+            specs,
+            amenities,
+            images,
+        } = req.body;
+
+        // Validate owner_id
+        if (!owner_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'owner_id is required',
+            });
+        }
+
+        // Validate required fields
+        if (!property_type || !title || !location || price === undefined) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing required fields: property_type, title, location, price',
+            });
+        }
+
+        // Validate location fields
+        if (!location.area || !location.city) {
+            return res.status(400).json({
+                success: false,
+                message: 'Location must include area and city',
+            });
+        }
+
+        // Validate property_type enum
+        const validTypes = ['Entire Flat', 'Private Room', 'Shared Seat', 'Sublet'];
+        if (!validTypes.includes(property_type)) {
+            return res.status(400).json({
+                success: false,
+                message: `Invalid property type. Must be one of: ${validTypes.join(', ')}`,
+            });
+        }
+
+        // Generate unique id
+        const propertyId = `PROP_${crypto.randomBytes(8).toString('hex').toUpperCase()}`;
+
+        const newProperty = new Property({
+            id: propertyId,
+            property_type,
+            title,
+            description: description || '',
+            location: {
+                area: location.area,
+                city: location.city,
+                country: location.country || 'Bangladesh',
+                coordinates: location.coordinates,
+            },
+            price: {
+                monthly_rent: parseInt(price),
+                currency: 'BDT',
+            },
+            specs: {
+                bedrooms: specs?.bedrooms || undefined,
+                bathrooms: specs?.bathrooms || undefined,
+                area_sqft: specs?.area_sqft || undefined,
+                balconies: specs?.balconies || undefined,
+            },
+            amenities: amenities || [],
+            images: images || [],
+            owner_id,
+            verified: false,
+            availability: 'Available',
+        });
+
+        const savedProperty = await newProperty.save();
+
+        res.status(201).json({
+            success: true,
+            message: 'Property created successfully',
+            data: savedProperty,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 
 const getAllProperties = async (req, res, next) => {
     try {
@@ -94,6 +185,7 @@ const searchAndFilterProperties = async (req, res, next) => {
 };
 
 module.exports = {
+    createProperty,
     getAllProperties,
     getPropertyById,
     searchAndFilterProperties,

@@ -4,8 +4,8 @@ const propertySchema = new mongoose.Schema(
     {
         id: {
             type: String,
-            required: true,
             unique: true,
+            sparse: true,
         },
         title: {
             type: String,
@@ -23,7 +23,7 @@ const propertySchema = new mongoose.Schema(
             },
             country: {
                 type: String,
-                required: true,
+                default: 'Bangladesh',
             },
             coordinates: {
                 lat: Number,
@@ -71,6 +71,10 @@ const propertySchema = new mongoose.Schema(
             required: true,
         },
         amenities: [String],
+        owner_id: {
+            type: String,
+            required: true,
+        },
         host: {
             name: String,
             joined_since: Number,
