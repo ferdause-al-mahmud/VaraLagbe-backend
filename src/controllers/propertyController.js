@@ -184,9 +184,103 @@ const searchAndFilterProperties = async (req, res, next) => {
     }
 };
 
+const updateProperty = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const {
+            property_type,
+            title,
+            description,
+            location,
+            price,
+            specs,
+            amenities,
+            images,
+            verified,
+            availability,
+        } = req.body;
+
+        // Check if property exists
+        const property = await Property.findById(id);
+        if (!property) {
+            return res.status(404).json({
+                success: false,
+                message: 'Property not found',
+            });
+        }
+
+        // Validate property_type if provided
+        if (property_type) {
+            const validTypes = ['Entire Flat', 'Private Room', 'Shared Seat', 'Sublet'];
+            if (!validTypes.includes(property_type)) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Invalid property type. Must be one of: ${validTypes.join(', ')}`,
+                });
+            }
+        }
+
+        // Validate location if provided
+        if (location) {
+            if (!location.area || !location.city) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Location must include area and city',
+                });
+            }
+        }
+
+        // Prepare update object
+        const updateData = {};
+        if (property_type) updateData.property_type = property_type;
+        if (title) updateData.title = title;
+        if (description !== undefined) updateData.description = description;
+        if (location) {
+            updateData.location = {
+                area: location.area,
+                city: location.city,
+                country: location.country || property.location.country,
+                coordinates: location.coordinates || property.location.coordinates,
+            };
+        }
+        if (price) {
+            updateData.price = {
+                monthly_rent: parseInt(price),
+                currency: 'BDT',
+            };
+        }
+        if (specs) {
+            updateData.specs = {
+                bedrooms: specs.bedrooms !== undefined ? specs.bedrooms : property.specs.bedrooms,
+                bathrooms: specs.bathrooms !== undefined ? specs.bathrooms : property.specs.bathrooms,
+                area_sqft: specs.area_sqft !== undefined ? specs.area_sqft : property.specs.area_sqft,
+                balconies: specs.balconies !== undefined ? specs.balconies : property.specs.balconies,
+            };
+        }
+        if (amenities) updateData.amenities = amenities;
+        if (images) updateData.images = images;
+        if (verified !== undefined) updateData.verified = verified;
+        if (availability) updateData.availability = availability;
+
+        const updatedProperty = await Property.findByIdAndUpdate(id, updateData, {
+            new: true,
+            runValidators: true,
+        });
+
+        res.status(200).json({
+            success: true,
+            message: 'Property updated successfully',
+            data: updatedProperty,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     createProperty,
     getAllProperties,
     getPropertyById,
     searchAndFilterProperties,
+    updateProperty,
 };
