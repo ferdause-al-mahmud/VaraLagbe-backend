@@ -26,11 +26,32 @@ exports.createBooking = async (req, res, next) => {
             specialRequests,
         } = req.body;
 
+        if (!req.user?._id) {
+            return res.status(401).json({
+                success: false,
+                message: 'Please log in to create a booking',
+            });
+        }
+
         // Validate required fields
-        if (!propertyId || !hostId || !checkInDate || !checkOutDate || !guests || !price) {
+        if (!propertyId || !hostId || !propertyTitle || !checkInDate || !checkOutDate || !guests || !price) {
             return res.status(400).json({
                 success: false,
                 message: 'Missing required booking fields',
+            });
+        }
+
+        if (!guests.adults || guests.adults < 1) {
+            return res.status(400).json({
+                success: false,
+                message: 'At least one adult guest is required',
+            });
+        }
+
+        if (!price.totalAmount || price.totalAmount < 1) {
+            return res.status(400).json({
+                success: false,
+                message: 'A valid booking amount is required',
             });
         }
 
@@ -44,7 +65,7 @@ exports.createBooking = async (req, res, next) => {
 
         const booking = await Booking.create({
             bookingId: generateBookingId(),
-            userId: req.user ? req.user.id : null,
+            userId: req.user._id,
             propertyId,
             propertyTitle,
             propertyImage,
