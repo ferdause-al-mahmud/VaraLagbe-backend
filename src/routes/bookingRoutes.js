@@ -24,8 +24,8 @@ router.get('/user/:userId', getUserBookings);
 router.get('/host/:hostId', getHostBookings);
 
 // Property routes
-router.get('/property/:propertyId', getPropertyBookings);
 router.get('/property/:propertyId/available-dates', getPropertyAvailableDates);
+router.get('/property/:propertyId', getPropertyBookings);
 
 // Update and delete routes
 router.post('/', protect, createBooking);
