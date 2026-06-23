@@ -13,12 +13,11 @@ const {
     getBookingStats,
     getPropertyAvailableDates,
 } = require('../controllers/bookingController');
+const { protect } = require('../middleware/authMiddleware');
 
 // Public routes
-router.post('/', createBooking);
 router.get('/', getAllBookings);
 router.get('/stats', getBookingStats);
-router.get('/:id', getBookingById);
 
 // User specific routes
 router.get('/user/:userId', getUserBookings);
@@ -29,6 +28,8 @@ router.get('/property/:propertyId', getPropertyBookings);
 router.get('/property/:propertyId/available-dates', getPropertyAvailableDates);
 
 // Update and delete routes
+router.post('/', protect, createBooking);
+router.get('/:id', getBookingById);
 router.put('/:id', updateBooking);
 router.patch('/:id/cancel', cancelBooking);
 router.delete('/:id', deleteBooking);

@@ -1,4 +1,5 @@
 const Property = require('../models/Property');
+const User = require('../models/User');
 const crypto = require('crypto');
 
 const createProperty = async (req, res, next) => {
@@ -50,6 +51,7 @@ const createProperty = async (req, res, next) => {
 
         // Generate unique id
         const propertyId = `PROP_${crypto.randomBytes(8).toString('hex').toUpperCase()}`;
+        const owner = await User.findById(owner_id).select('fullName');
 
         const newProperty = new Property({
             id: propertyId,
@@ -75,6 +77,12 @@ const createProperty = async (req, res, next) => {
             amenities: amenities || [],
             images: images || [],
             owner_id,
+            host: {
+                name: owner?.fullName || 'Property Host',
+                response_rate: 95,
+                verified_host: true,
+                avatar: '',
+            },
             verified: false,
             availability: 'Available',
         });
