@@ -6,6 +6,7 @@ const {
     getPropertyById,
     searchAndFilterProperties,
     updateProperty,
+    deleteProperty,
     getFilterOptions,
 } = require('../controllers/propertyController');
 
@@ -20,5 +21,7 @@ router.get('/', getAllProperties);
 router.get('/:id', getPropertyById);
 
 router.put('/:id', updateProperty);
+router.delete('/:id', deleteProperty);
 
 module.exports = router;
+

@@ -101,7 +101,12 @@ const createProperty = async (req, res, next) => {
 
 const getAllProperties = async (req, res, next) => {
     try {
-        const properties = await Property.find();
+        const filter = { moderationStatus: { $ne: 'removed' } };
+        if (req.query.owner_id) {
+            filter.owner_id = req.query.owner_id;
+        }
+        filter.moderationStatus = { $ne: 'removed' };
+        const properties = await Property.find(filter).sort({ createdAt: -1 });
         res.status(200).json({
             success: true,
             count: properties.length,
@@ -180,6 +185,7 @@ const searchAndFilterProperties = async (req, res, next) => {
             filter.amenities = { $all: amenitiesArray };
         }
 
+        filter.moderationStatus = { $ne: 'removed' };
         const properties = await Property.find(filter).sort({ createdAt: -1 });
 
         res.status(200).json({
@@ -285,6 +291,34 @@ const updateProperty = async (req, res, next) => {
     }
 };
 
+const deleteProperty = async (req, res, next) => {
+    try {
+        const property = await Property.findByIdAndUpdate(
+            req.params.id,
+            {
+                moderationStatus: 'removed',
+                availability: 'Unavailable',
+                moderationNote: 'Removed by owner or admin',
+            },
+            { new: true }
+        );
+
+        if (!property) {
+            return res.status(404).json({
+                success: false,
+                message: 'Property not found',
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Property removed successfully',
+            data: property,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 const getFilterOptions = async (req, res, next) => {
     try {
         // Get all unique values for filter options
@@ -339,5 +373,7 @@ module.exports = {
     getPropertyById,
     searchAndFilterProperties,
     updateProperty,
+    deleteProperty,
     getFilterOptions,
 };
+

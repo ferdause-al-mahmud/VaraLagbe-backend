@@ -30,6 +30,21 @@ const userSchema = new mongoose.Schema(
             default: 'user',
             required: true,
         },
+        status: {
+            type: String,
+            enum: ['active', 'pending', 'suspended'],
+            default: 'active',
+        },
+        nidVerificationStatus: {
+            type: String,
+            enum: ['not_submitted', 'pending', 'verified', 'rejected'],
+            default: 'not_submitted',
+        },
+        avatar: {
+            type: String,
+            default: '',
+            trim: true,
+        },
         address: {
             streetAddress: {
                 type: String,
@@ -73,3 +88,4 @@ const userSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model('User', userSchema);
+
