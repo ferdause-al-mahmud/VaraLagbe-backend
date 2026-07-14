@@ -101,7 +101,12 @@ const createProperty = async (req, res, next) => {
 
 const getAllProperties = async (req, res, next) => {
     try {
-        const properties = await Property.find();
+        const filter = { moderationStatus: { $ne: 'removed' } };
+        if (req.query.owner_id) {
+            filter.owner_id = req.query.owner_id;
+        }
+        filter.moderationStatus = { $ne: 'removed' };
+        const properties = await Property.find(filter).sort({ createdAt: -1 });
         res.status(200).json({
             success: true,
             count: properties.length,
@@ -180,6 +185,7 @@ const searchAndFilterProperties = async (req, res, next) => {
             filter.amenities = { $all: amenitiesArray };
         }
 
+        filter.moderationStatus = { $ne: 'removed' };
         const properties = await Property.find(filter).sort({ createdAt: -1 });
 
         res.status(200).json({
@@ -285,10 +291,89 @@ const updateProperty = async (req, res, next) => {
     }
 };
 
+const deleteProperty = async (req, res, next) => {
+    try {
+        const property = await Property.findByIdAndUpdate(
+            req.params.id,
+            {
+                moderationStatus: 'removed',
+                availability: 'Unavailable',
+                moderationNote: 'Removed by owner or admin',
+            },
+            { new: true }
+        );
+
+        if (!property) {
+            return res.status(404).json({
+                success: false,
+                message: 'Property not found',
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Property removed successfully',
+            data: property,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+const getFilterOptions = async (req, res, next) => {
+    try {
+        // Get all unique values for filter options
+        const properties = await Property.find();
+
+        // Extract unique values
+        const propertyTypes = [...new Set(properties.map(p => p.property_type))];
+        const amenitiesSet = new Set();
+        const locationsSet = new Set();
+
+        properties.forEach(p => {
+            if (p.amenities && Array.isArray(p.amenities)) {
+                p.amenities.forEach(a => amenitiesSet.add(a));
+            }
+            if (p.location && p.location.area) {
+                locationsSet.add(p.location.area);
+            }
+        });
+
+        // Get price range
+        const priceData = await Property.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    minPrice: { $min: '$price.monthly_rent' },
+                    maxPrice: { $max: '$price.monthly_rent' }
+                }
+            }
+        ]);
+
+        const priceRange = priceData.length > 0
+            ? { min: priceData[0].minPrice, max: priceData[0].maxPrice }
+            : { min: 1000, max: 100000 };
+
+        res.status(200).json({
+            success: true,
+            data: {
+                propertyTypes,
+                amenities: Array.from(amenitiesSet),
+                locations: Array.from(locationsSet),
+                priceRange
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     createProperty,
     getAllProperties,
     getPropertyById,
     searchAndFilterProperties,
     updateProperty,
+    deleteProperty,
+    getFilterOptions,
 };
+

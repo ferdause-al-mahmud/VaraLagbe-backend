@@ -54,6 +54,16 @@ const propertySchema = new mongoose.Schema(
             enum: ['Available Now', 'Available', 'Available Soon', 'Unavailable'],
             default: 'Available',
         },
+        moderationStatus: {
+            type: String,
+            enum: ['pending', 'live', 'flagged', 'removed'],
+            default: 'pending',
+        },
+        moderationNote: {
+            type: String,
+            default: 'Submitted for admin review',
+            trim: true,
+        },
         verified: {
             type: Boolean,
             default: false,
@@ -91,3 +101,4 @@ const propertySchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model('Property', propertySchema);
+

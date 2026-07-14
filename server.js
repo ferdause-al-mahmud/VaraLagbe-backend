@@ -7,6 +7,8 @@ const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 const propertyRoutes = require('./src/routes/propertyRoutes');
 const bookingRoutes = require('./src/routes/bookingRoutes');
+const adminRoutes = require('./src/routes/adminRoutes');
+const chatRoutes = require('./src/routes/chatRoutes');
 
 const app = express();
 
@@ -36,6 +38,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/chats', chatRoutes);
 
 
 // Health Check
@@ -65,3 +69,4 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
+

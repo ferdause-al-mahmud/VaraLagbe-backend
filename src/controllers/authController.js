@@ -7,11 +7,15 @@ const phoneRegex = /^01[0-9]{9}$/;
 const publicSignupRoles = ['user', 'owner'];
 
 const formatUserResponse = (user) => ({
+    _id: user._id,
     id: user._id,
     fullName: user.fullName,
     email: user.email,
     phone: user.phone,
     role: user.role,
+    status: user.status,
+    nidVerificationStatus: user.nidVerificationStatus,
+    avatar: user.avatar,
     address: {
         streetAddress: user.address?.streetAddress || '',
         thanaUpazila: user.address?.thanaUpazila || '',
@@ -23,6 +27,13 @@ const formatUserResponse = (user) => ({
     agreedToTerms: user.agreedToTerms,
     createdAt: user.createdAt,
 });
+
+const createToken = (user) =>
+    jwt.sign(
+        { userId: user._id, email: user.email, role: user.role },
+        process.env.JWT_SECRET || 'varalagbe-dev-secret',
+        { expiresIn: '7d' }
+    );
 
 const signUp = async (req, res, next) => {
     try {
@@ -95,6 +106,8 @@ const signUp = async (req, res, next) => {
             phone: normalizedPhone,
             role,
             password: hashedPassword,
+            status: 'active',
+            nidVerificationStatus: nidFile ? 'pending' : 'not_submitted',
             address: {
                 streetAddress: '',
                 thanaUpazila: '',
@@ -106,15 +119,9 @@ const signUp = async (req, res, next) => {
             agreedToTerms: true,
         });
 
-        const token = jwt.sign(
-            { userId: user._id, email: user.email },
-            process.env.JWT_SECRET || 'varalagbe-dev-secret',
-            { expiresIn: '7d' }
-        );
-
         return res.status(201).json({
             message: 'Account created successfully',
-            token,
+            token: createToken(user),
             user: formatUserResponse(user),
         });
     } catch (error) {
@@ -156,15 +163,13 @@ const login = async (req, res, next) => {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
-        const token = jwt.sign(
-            { userId: user._id, email: user.email },
-            process.env.JWT_SECRET || 'varalagbe-dev-secret',
-            { expiresIn: '7d' }
-        );
+        if (user.status === 'suspended') {
+            return res.status(403).json({ message: 'This account is suspended' });
+        }
 
         return res.status(200).json({
             message: 'Login successful',
-            token,
+            token: createToken(user),
             user: formatUserResponse(user),
         });
     } catch (error) {
