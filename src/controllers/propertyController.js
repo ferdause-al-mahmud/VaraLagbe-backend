@@ -285,10 +285,59 @@ const updateProperty = async (req, res, next) => {
     }
 };
 
+const getFilterOptions = async (req, res, next) => {
+    try {
+        // Get all unique values for filter options
+        const properties = await Property.find();
+
+        // Extract unique values
+        const propertyTypes = [...new Set(properties.map(p => p.property_type))];
+        const amenitiesSet = new Set();
+        const locationsSet = new Set();
+
+        properties.forEach(p => {
+            if (p.amenities && Array.isArray(p.amenities)) {
+                p.amenities.forEach(a => amenitiesSet.add(a));
+            }
+            if (p.location && p.location.area) {
+                locationsSet.add(p.location.area);
+            }
+        });
+
+        // Get price range
+        const priceData = await Property.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    minPrice: { $min: '$price.monthly_rent' },
+                    maxPrice: { $max: '$price.monthly_rent' }
+                }
+            }
+        ]);
+
+        const priceRange = priceData.length > 0
+            ? { min: priceData[0].minPrice, max: priceData[0].maxPrice }
+            : { min: 1000, max: 100000 };
+
+        res.status(200).json({
+            success: true,
+            data: {
+                propertyTypes,
+                amenities: Array.from(amenitiesSet),
+                locations: Array.from(locationsSet),
+                priceRange
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     createProperty,
     getAllProperties,
     getPropertyById,
     searchAndFilterProperties,
     updateProperty,
+    getFilterOptions,
 };

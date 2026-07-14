@@ -6,14 +6,17 @@ const {
     getPropertyById,
     searchAndFilterProperties,
     updateProperty,
+    getFilterOptions,
 } = require('../controllers/propertyController');
 
 router.post('/', createProperty);
 
-router.get('/', getAllProperties);
-
+// Specific routes BEFORE generic :id route
 router.get('/search/filter', searchAndFilterProperties);
+router.get('/options', getFilterOptions);
 
+// Generic routes AFTER specific routes
+router.get('/', getAllProperties);
 router.get('/:id', getPropertyById);
 
 router.put('/:id', updateProperty);
